@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "reservepay"
+version = "0.0.1"
+description = "Typed Python clients for the Reservepay APIs"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE.txt" }
+dependencies = ["webfunction"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reservepay"]

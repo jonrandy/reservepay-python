@@ -1,0 +1,13 @@
+* text=auto
+*.sh text eol=lf
+
+* export-ignore
+/pyproject.toml -export-ignore
+/README.md -export-ignore
+/LICENSE.txt -export-ignore
+/src -export-ignore
+/src/** -export-ignore
+
+/src/reservepay/merchant.py linguist-generated
+/src/reservepay/sdk.py linguist-generated
+/src/reservepay/terminal.py linguist-generated
