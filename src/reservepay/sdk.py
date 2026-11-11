@@ -1288,7 +1288,7 @@ class Client:
         and determine the next steps.
 
         Raises:
-            webfunction.BadRequestError: code "INVALID_ARGUMENTS" - This error occurs when the request contains invalid or missing parameters. Common cases include:
+            webfunction.BadRequestError: code "INVALID_ARGUMENTS" - This error occurs when the request contains invalid or missing parameters. Common cases include: - A missing `merchant_id`, `installation_id`, `amount`, `currency`, or `payment_method` - An unsupported `currency` (must match the funding currency configured for your provider) - An installation that could not be found or does not have the requested payment method enabled - Missing customer email or mobile when required by the installation - Missing address fields when required by the installation and payment method
             webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when we cannot find the merchant account, installation, or card token with the IDs provided. Double check that you are using the correct IDs.
             webfunction.BadRequestError: code "TOKEN_ALREADY_USED" - This single-use token has already been used to create a payment session. Each single-use token can only be used once. Request a new token from `tokenize-card`.
             webfunction.BadRequestError: code "NOT_ENABLED" - This installation is currently disabled.
@@ -1680,7 +1680,7 @@ class AsyncClient:
         and determine the next steps.
 
         Raises:
-            webfunction.BadRequestError: code "INVALID_ARGUMENTS" - This error occurs when the request contains invalid or missing parameters. Common cases include:
+            webfunction.BadRequestError: code "INVALID_ARGUMENTS" - This error occurs when the request contains invalid or missing parameters. Common cases include: - A missing `merchant_id`, `installation_id`, `amount`, `currency`, or `payment_method` - An unsupported `currency` (must match the funding currency configured for your provider) - An installation that could not be found or does not have the requested payment method enabled - Missing customer email or mobile when required by the installation - Missing address fields when required by the installation and payment method
             webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when we cannot find the merchant account, installation, or card token with the IDs provided. Double check that you are using the correct IDs.
             webfunction.BadRequestError: code "TOKEN_ALREADY_USED" - This single-use token has already been used to create a payment session. Each single-use token can only be used once. Request a new token from `tokenize-card`.
             webfunction.BadRequestError: code "NOT_ENABLED" - This installation is currently disabled.

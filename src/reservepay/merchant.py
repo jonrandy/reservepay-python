@@ -9165,8 +9165,8 @@ class Client:
         and raise a conflict error if any duplicates are found.
 
         Raises:
-            webfunction.BadRequestError: code "CONFLICT" - A contact with the same ID, email, or mobile number already exists.
-            webfunction.BadRequestError: code "VALIDATION_ERROR" - Validation failed. Either `contact_email` or `contact_mobile` must be provided.
+            webfunction.BadRequestError: code "CONFLICT" - A contact with the same ID, email, or mobile number already exists. Each contact must have unique values for these fields.
+            webfunction.BadRequestError: code "VALIDATION_ERROR" - Validation failed. Either `contact_email` or `contact_mobile` must be provided. If `contact_email` is provided, it must be a valid email format.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9198,8 +9198,8 @@ class Client:
         reference them in other API calls.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_BUSINESS" - This error occurs when attempting to add a key person to an individual merchant
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_BUSINESS" - This error occurs when attempting to add a key person to an individual merchant account. Key persons can only be added to business merchant accounts. If you need to upgrade to a business account, please contact support.
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9232,7 +9232,7 @@ class Client:
         Add a new sales channel for the merchant.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9297,8 +9297,8 @@ class Client:
         soon as this call returns.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_ALLOWED" - Topups can only be added to test merchant accounts. This error occurs when
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when a `virtual_account_number` is supplied but no
+            webfunction.BadRequestError: code "NOT_ALLOWED" - Topups can only be added to test merchant accounts. This error occurs when the authenticated merchant is a live account.
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when a `virtual_account_number` is supplied but no virtual account with that number exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9363,8 +9363,8 @@ class Client:
         settled yet, can be cancelled. Once a payment is cancelled, its status changes to `CANCELLED`.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_CANCELLABLE" - Payment is not eligible for cancellation. This can happen if the payment is
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
+            webfunction.BadRequestError: code "NOT_CANCELLABLE" - Payment is not eligible for cancellation. This can happen if the payment is not in a `PENDING` or `SUCCESSFUL` status, has already been settled, or its payment method does not support cancellations.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9383,8 +9383,8 @@ class Client:
         its status changes to `SUCCESSFUL` (or `FAILED` if the capture fails).
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_CAPTURABLE" - Payment is not eligible for capture. This can happen if the payment
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
+            webfunction.BadRequestError: code "NOT_CAPTURABLE" - Payment is not eligible for capture. This can happen if the payment is not in an authorized state, the capture window has passed, or the integration does not support captures.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9450,7 +9450,7 @@ class Client:
         the uploaded file to the merchant branding.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no upload with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no upload with the provided ID exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9481,8 +9481,8 @@ class Client:
         This effectively attaches the uploaded file to the relevant merchant, business, individual or key person.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no upload with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no upload with the provided ID exists in your merchant account.
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9511,7 +9511,7 @@ class Client:
         remains valid and can be used again once re-enabled.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9525,7 +9525,7 @@ class Client:
         Disables a payment link so it can no longer be used to collect payments.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your merchant account. Double check that you're using the correct payment link ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9584,7 +9584,7 @@ class Client:
         actively being used.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your merchant account. Double check that you're using the correct installation ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9598,7 +9598,7 @@ class Client:
         Enables a previously disabled payment link so it can be used to collect payments again.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your merchant account. Double check that you're using the correct payment link ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9795,7 +9795,7 @@ class Client:
         This endpoint returns both active and soft-deleted bank accounts from the merchant's directory.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No bank account found with the provided bank_account_id in this merchant's directory.
+            webfunction.BadRequestError: code "NOT_FOUND" - No bank account found with the provided bank_account_id in this merchant's directory. The bank account may not exist or may not belong to the merchant's directory.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9831,7 +9831,7 @@ class Client:
         This endpoint returns both active and soft-deleted cards from the merchant's directory.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No card found with the provided card_id or token in this merchant's directory.
+            webfunction.BadRequestError: code "NOT_FOUND" - No card found with the provided card_id or token in this merchant's directory. The card may not exist or may not belong to the merchant's directory.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9882,7 +9882,7 @@ class Client:
         when you created the installation using the add-installation endpoint.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your merchant account. Double check that you're using the correct installation ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9896,7 +9896,7 @@ class Client:
         Retrieve details about a specific invoice in your merchant account.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no invoice with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no invoice with the provided ID exists in your merchant account. Double check that you're using the correct invoice ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9917,7 +9917,7 @@ class Client:
         the key using the `generate-key` endpoint.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no API key with the provided ID exists in your merchant
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no API key with the provided ID exists in your merchant account. Double check that you're using the correct key ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9931,7 +9931,7 @@ class Client:
         Retrieve details about a specific payment by its unique identifier or external ID.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9945,7 +9945,7 @@ class Client:
         Retrieve details about a specific payment link in your merchant account.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your merchant account. Double check that you're using the correct payment link ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9959,7 +9959,7 @@ class Client:
         Retrieves a specific payout by its unique identifier or external ID.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payout with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payout with the provided ID exists in your merchant account. Double check that you're using the correct payout ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -9973,7 +9973,7 @@ class Client:
         Retrieves a specific refund by its unique identifier or external ID.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no refund with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no refund with the provided ID exists in your merchant account. Double check that you're using the correct refund ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10001,7 +10001,7 @@ class Client:
         Retrieve details about a specific balance top-up in your merchant account.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no topup with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no topup with the provided ID exists in your merchant account. Double check that you're using the correct topup ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10015,7 +10015,7 @@ class Client:
         Retrieves a specific virtual account by its unique identifier.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no virtual account with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no virtual account with the provided ID exists in your merchant account. Double check that you're using the correct virtual account ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10029,7 +10029,7 @@ class Client:
         Retrieves details about a specific webhook in merchant account.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no webhook with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no webhook with the provided ID exists in your merchant account. Double check that you're using the correct webhook ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10093,7 +10093,7 @@ class Client:
         Returns an object containing the URL and the object key (which includes the timestamped filename).
 
         Raises:
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10153,11 +10153,11 @@ class Client:
         and details.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - The payment session ID provided doesn't match any active session in
-            webfunction.BadRequestError: code "CONFLICT" - The payment session amount and currency do not match the amount and
-            webfunction.BadRequestError: code "NOT_SUPPORTED" - The payment method selected does not support the requested operation.
-            webfunction.BadRequestError: code "CUSTOMER_REQUIRED" - A customer identifier is required when the payment session uses a saved
-            webfunction.BadRequestError: code "CUSTOMER_MISMATCH" - The customer identifier provided does not match the saved card on the
+            webfunction.BadRequestError: code "NOT_FOUND" - The payment session ID provided doesn't match any active session in our system, or the card_id doesn't match any card belonging to the customer. This usually means the session has expired or was already used, or the card has been deleted. The customer should select their payment method again in the SDK to generate a new session.
+            webfunction.BadRequestError: code "CONFLICT" - The payment session amount and currency do not match the amount and currency provided in the request. The payment session was created with specific values that must match when initiating the payment flow. Ensure the amount and currency in your request match the values used when creating the payment session. The payment external_id must also be unique within the merchant account.
+            webfunction.BadRequestError: code "NOT_SUPPORTED" - The payment method selected does not support the requested operation. This occurs when capture is set to false but the payment method's integrations do not support authorization without capture. Choose a different payment method or set capture to true.
+            webfunction.BadRequestError: code "CUSTOMER_REQUIRED" - A customer identifier is required when the payment session uses a saved card token. Provide customer_id, customer_email, or customer_mobile to identify the card's owner.
+            webfunction.BadRequestError: code "CUSTOMER_MISMATCH" - The customer identifier provided does not match the saved card on the payment session. When the session was created with a saved card token, the customer_id or customer_email must belong to the card's owner.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10435,7 +10435,7 @@ class Client:
         Retrieves all activities, events, and payment session information for a given payment.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10449,7 +10449,7 @@ class Client:
         Returns a paginated list of payments associated with a specific payment link.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10542,7 +10542,7 @@ class Client:
         Retrieves all activities, events, and payout session information for a given payout.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payout with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payout with the provided ID exists in your merchant account. Double check that you're using the correct payout ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10789,7 +10789,7 @@ class Client:
         Temporarily disable a webhook connection.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when the webhook endpoint with the provided ID could not be found.
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when the webhook endpoint with the provided ID could not be found. Double check that you're using the correct webhook ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10854,7 +10854,7 @@ class Client:
 
         Raises:
             webfunction.BadRequestError: code "NOT_FOUND" - No payment with the provided ID exists in your merchant account.
-            webfunction.BadRequestError: code "NOT_REFUNDABLE" - Payment is not eligible for refund. This can happen if the payment
+            webfunction.BadRequestError: code "NOT_REFUNDABLE" - Payment is not eligible for refund. This can happen if the payment has not been billed yet, is already fully refunded, or the integration does not support refunds.
             webfunction.BadRequestError: code "AMOUNT_EXCEEDS_LIMIT" - The refund amount exceeds the remaining refundable amount.
             webfunction.BadRequestError: code "CONFLICT" - A refund with the provided external ID already exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
@@ -10886,7 +10886,7 @@ class Client:
         or the external ID provided when the contact was created.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id.
+            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id. The contact may not exist or may belong to a different merchant.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -10980,7 +10980,7 @@ class Client:
         Raises:
             webfunction.BadRequestError: code "NOT_FOUND" - The key person with the provided ID could not be found in your merchant account. Verify that you're using the correct key person ID.
             webfunction.BadRequestError: code "NOT_BUSINESS" - This merchant account is not registered as a business. Only business merchant accounts can manage key persons.
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -11027,8 +11027,8 @@ class Client:
         Remove a sales channel for the merchant.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no sales channel with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no sales channel with the provided ID exists in your merchant account.
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -11067,11 +11067,11 @@ class Client:
         method to use this endpoint.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - The installation, card, or token could not be found. Double check that
-            webfunction.BadRequestError: code "NOT_ALLOWED" - Merchant initiated transactions are not allowed for this payment method.
+            webfunction.BadRequestError: code "NOT_FOUND" - The installation, card, or token could not be found. Double check that you are using the correct IDs and that the card belongs to the specified customer.
+            webfunction.BadRequestError: code "NOT_ALLOWED" - Merchant initiated transactions are not allowed for this payment method. Contact support to enable the MIT flag on your card payment method.
             webfunction.BadRequestError: code "NOT_ENABLED" - This installation is currently disabled.
             webfunction.BadRequestError: code "TOKEN_ALREADY_USED" - This token has already been used. Request a new token from tokenize-card.
-            webfunction.BadRequestError: code "NOT_SUPPORTED" - The payment method does not support the requested operation.
+            webfunction.BadRequestError: code "NOT_SUPPORTED" - The payment method does not support the requested operation. This occurs when capture is set to false but the payment method's integrations do not support authorization without capture.
             webfunction.BadRequestError: code "CONFLICT" - A payment with the same external_id already exists in this merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
@@ -11119,7 +11119,7 @@ class Client:
         Enable temporarily disabled webhook connection.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when the webhook endpoint with the provided ID could not be found.
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when the webhook endpoint with the provided ID could not be found. Double check that you're using the correct webhook ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -11195,7 +11195,7 @@ class Client:
         status of a checkout, see which payment methods were used, and get customer information.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no checkout with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no checkout with the provided ID exists in your merchant account. Double check that you're using the correct checkout ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -11225,7 +11225,7 @@ class Client:
         or the external ID provided when the contact was created.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id.
+            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id. The contact may not exist or may belong to a different merchant.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -11334,7 +11334,7 @@ class Client:
         Retrieves a monthly billing archive by its ID (i.e., month and year in `YYYY-MM` format).
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No archive found with the provided monthly_billing_archive_id.
+            webfunction.BadRequestError: code "NOT_FOUND" - No archive found with the provided monthly_billing_archive_id. This could indicate that there was no activity for that month, or that the archive has not yet been created.
             webfunction.BadRequestError: code "INVALID" - The provided monthly_billing_archive_id could not be parsed as a valid month (expected format: 'YYYY-MM').
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
@@ -11378,7 +11378,7 @@ class Client:
         This endpoint requires authentication and will only return details for the authenticated merchant.
 
         Raises:
-            webfunction.BadRequestError: code "NO_ONBOARDING" - This error occurs when the merchant has no onboarding available.
+            webfunction.BadRequestError: code "NO_ONBOARDING" - This error occurs when the merchant has no onboarding available. Ensure that the merchant has started the onboarding process before attempting to retrieve it.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -11436,8 +11436,8 @@ class Client:
         This affects how the `transactions` array is structured and the `granularity` field in the response.
 
         Raises:
-            webfunction.BadRequestError: code "INVALID_DATE_FORMAT" - This error occurs when the date_input parameter is not in a supported format.
-            webfunction.BadRequestError: code "INVALID_DATE_RANGE" - This error occurs when the end date is before the start date in a date range.
+            webfunction.BadRequestError: code "INVALID_DATE_FORMAT" - This error occurs when the date_input parameter is not in a supported format. Please use one of the supported formats: YYYY-MM-DD, YYYY-MM-DD..YYYY-MM-DD, or keywords.
+            webfunction.BadRequestError: code "INVALID_DATE_RANGE" - This error occurs when the end date is before the start date in a date range. Please ensure the end date is after or equal to the start date.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -11477,8 +11477,8 @@ class Client:
         This affects how the `transactions` array is structured and the `granularity` field in the response.
 
         Raises:
-            webfunction.BadRequestError: code "INVALID_DATE_FORMAT" - This error occurs when the date_input parameter is not in a supported format.
-            webfunction.BadRequestError: code "INVALID_DATE_RANGE" - This error occurs when the end date is before the start date in a date range.
+            webfunction.BadRequestError: code "INVALID_DATE_FORMAT" - This error occurs when the date_input parameter is not in a supported format. Please use one of the supported formats: YYYY-MM-DD, YYYY-MM-DD..YYYY-MM-DD, or keywords.
+            webfunction.BadRequestError: code "INVALID_DATE_RANGE" - This error occurs when the end date is before the start date in a date range. Please ensure the end date is after or equal to the start date.
             webfunction.BadRequestError: code "NOT_FOUND" - The terminal specified by `terminal_id` could not be found for this merchant.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
@@ -11498,8 +11498,8 @@ class Client:
         reversed, its status changes to `REVERSED`.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_REVERSIBLE" - Payment is not eligible for reversal. This can happen if the payment
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
+            webfunction.BadRequestError: code "NOT_REVERSIBLE" - Payment is not eligible for reversal. This can happen if the payment is not in an authorized state, the reversal window has passed, or the integration does not support reversals.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -11610,7 +11610,7 @@ class Client:
         Raises:
             webfunction.BadRequestError: code "CONFLICT" - A payout with the same external_id already exists in this merchant account.
             webfunction.BadRequestError: code "NOT_FOUND" - The bank account does not exist or the payout method is not configured for this merchant.
-            webfunction.BadRequestError: code "INSUFFICIENT_BALANCE" - The merchant does not have sufficient balance to complete this payout.
+            webfunction.BadRequestError: code "INSUFFICIENT_BALANCE" - The merchant does not have sufficient balance to complete this payout. The requested amount exceeds the available balance in the merchant's account.
             webfunction.BadRequestError: code "INVALID_AMOUNT" - The payout amount exceeds the merchant or payout method limits.
             webfunction.BadRequestError: code "PAYOUTS_BLOCKED" - Payouts are currently blocked for this merchant.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
@@ -11642,7 +11642,7 @@ class Client:
             webfunction.BadRequestError: code "CONFLICT" - A payout with the same external_id already exists in this merchant account.
             webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided recipient_id, the bank account does not exist or does not belong to the contact, or the payout method is not configured for this merchant.
             webfunction.BadRequestError: code "INVALID_OPERATION" - The contact does not have a primary bank account. Please specify a bank_account_id.
-            webfunction.BadRequestError: code "INSUFFICIENT_BALANCE" - The merchant does not have sufficient balance to complete this payout.
+            webfunction.BadRequestError: code "INSUFFICIENT_BALANCE" - The merchant does not have sufficient balance to complete this payout. The requested amount exceeds the available balance in the merchant's account.
             webfunction.BadRequestError: code "INVALID_MOBILE_NUMBER" - The mobile number must be a valid local number (e.g. 0812223333) or E.164 number (e.g. +66812223333).
             webfunction.BadRequestError: code "INVALID_NATIONAL_ID" - The national ID must be exactly 13 digits.
             webfunction.BadRequestError: code "INVALID_AMOUNT" - The payout amount exceeds the merchant or payout method limits.
@@ -11701,7 +11701,7 @@ class Client:
 
         Raises:
             webfunction.BadRequestError: code "ALREADY_SET" - The entity type has already been set for this merchant account and cannot be changed. You must create a new merchant account if you need a different entity type.
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -11736,8 +11736,8 @@ class Client:
         The endpoint returns true if the classification was successfully set.
 
         Raises:
-            webfunction.BadRequestError: code "ALREADY_SET" - The merchant classification has already been set for this account and cannot be
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "ALREADY_SET" - The merchant classification has already been set for this account and cannot be changed. You must create a new merchant account if you need a different classification.
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12030,7 +12030,7 @@ class Client:
         `confirm-branding-upload` endpoints.
 
         Raises:
-            webfunction.BadRequestError: code "INVALID_RECORD" - This error occurs when the record contains invalid parameters. Common cases
+            webfunction.BadRequestError: code "INVALID_RECORD" - This error occurs when the record contains invalid parameters. Common cases include invalid hex color formats, unsupported font families, or invalid font variants for the specified font family.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12057,7 +12057,7 @@ class Client:
 
         Raises:
             webfunction.BadRequestError: code "NOT_BUSINESS" - This error occurs when attempting to update business details for a merchant that is not registered as a business entity. Business details can only be updated for business merchants, not individual merchants.
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12073,9 +12073,9 @@ class Client:
         The service will check for conflicts with other contacts if the new values already exist.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id.
-            webfunction.BadRequestError: code "CONFLICT" - A contact with the same email or mobile number already exists.
-            webfunction.BadRequestError: code "VALIDATION_ERROR" - Validation failed. At least one of contact_email or contact_mobile must be provided.
+            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id. The contact may not exist or may belong to a different merchant.
+            webfunction.BadRequestError: code "CONFLICT" - A contact with the same email or mobile number already exists. Each contact must have unique values for these fields.
+            webfunction.BadRequestError: code "VALIDATION_ERROR" - Validation failed. At least one of contact_email or contact_mobile must be provided. If contact_email is provided, it must be a valid email format.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12113,7 +12113,7 @@ class Client:
 
         Raises:
             webfunction.BadRequestError: code "NOT_INDIVIDUAL" - This error occurs when attempting to update individual details for a business merchant account.
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12152,8 +12152,8 @@ class Client:
         individual merchants.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no key person with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no key person with the provided ID exists in your merchant account.
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12182,7 +12182,7 @@ class Client:
         Update a sales channel for the merchant. Note that the platform cannot be changed after creation.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no sales channel with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no sales channel with the provided ID exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12238,8 +12238,8 @@ class Client:
         Once a payment is successfully voided, its status changes to `VOIDED`.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_VOIDABLE" - Payment is not eligible for void. This can happen if the payment is
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
+            webfunction.BadRequestError: code "NOT_VOIDABLE" - Payment is not eligible for void. This can happen if the payment is not in a captured state, has already settled into a statement, the void window has passed, or the integration does not support voids.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12333,8 +12333,8 @@ class AsyncClient:
         and raise a conflict error if any duplicates are found.
 
         Raises:
-            webfunction.BadRequestError: code "CONFLICT" - A contact with the same ID, email, or mobile number already exists.
-            webfunction.BadRequestError: code "VALIDATION_ERROR" - Validation failed. Either `contact_email` or `contact_mobile` must be provided.
+            webfunction.BadRequestError: code "CONFLICT" - A contact with the same ID, email, or mobile number already exists. Each contact must have unique values for these fields.
+            webfunction.BadRequestError: code "VALIDATION_ERROR" - Validation failed. Either `contact_email` or `contact_mobile` must be provided. If `contact_email` is provided, it must be a valid email format.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12366,8 +12366,8 @@ class AsyncClient:
         reference them in other API calls.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_BUSINESS" - This error occurs when attempting to add a key person to an individual merchant
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_BUSINESS" - This error occurs when attempting to add a key person to an individual merchant account. Key persons can only be added to business merchant accounts. If you need to upgrade to a business account, please contact support.
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12400,7 +12400,7 @@ class AsyncClient:
         Add a new sales channel for the merchant.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12465,8 +12465,8 @@ class AsyncClient:
         soon as this call returns.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_ALLOWED" - Topups can only be added to test merchant accounts. This error occurs when
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when a `virtual_account_number` is supplied but no
+            webfunction.BadRequestError: code "NOT_ALLOWED" - Topups can only be added to test merchant accounts. This error occurs when the authenticated merchant is a live account.
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when a `virtual_account_number` is supplied but no virtual account with that number exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12531,8 +12531,8 @@ class AsyncClient:
         settled yet, can be cancelled. Once a payment is cancelled, its status changes to `CANCELLED`.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_CANCELLABLE" - Payment is not eligible for cancellation. This can happen if the payment is
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
+            webfunction.BadRequestError: code "NOT_CANCELLABLE" - Payment is not eligible for cancellation. This can happen if the payment is not in a `PENDING` or `SUCCESSFUL` status, has already been settled, or its payment method does not support cancellations.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12551,8 +12551,8 @@ class AsyncClient:
         its status changes to `SUCCESSFUL` (or `FAILED` if the capture fails).
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_CAPTURABLE" - Payment is not eligible for capture. This can happen if the payment
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
+            webfunction.BadRequestError: code "NOT_CAPTURABLE" - Payment is not eligible for capture. This can happen if the payment is not in an authorized state, the capture window has passed, or the integration does not support captures.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12618,7 +12618,7 @@ class AsyncClient:
         the uploaded file to the merchant branding.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no upload with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no upload with the provided ID exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12649,8 +12649,8 @@ class AsyncClient:
         This effectively attaches the uploaded file to the relevant merchant, business, individual or key person.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no upload with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no upload with the provided ID exists in your merchant account.
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12679,7 +12679,7 @@ class AsyncClient:
         remains valid and can be used again once re-enabled.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12693,7 +12693,7 @@ class AsyncClient:
         Disables a payment link so it can no longer be used to collect payments.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your merchant account. Double check that you're using the correct payment link ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12752,7 +12752,7 @@ class AsyncClient:
         actively being used.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your merchant account. Double check that you're using the correct installation ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12766,7 +12766,7 @@ class AsyncClient:
         Enables a previously disabled payment link so it can be used to collect payments again.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your merchant account. Double check that you're using the correct payment link ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12963,7 +12963,7 @@ class AsyncClient:
         This endpoint returns both active and soft-deleted bank accounts from the merchant's directory.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No bank account found with the provided bank_account_id in this merchant's directory.
+            webfunction.BadRequestError: code "NOT_FOUND" - No bank account found with the provided bank_account_id in this merchant's directory. The bank account may not exist or may not belong to the merchant's directory.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -12999,7 +12999,7 @@ class AsyncClient:
         This endpoint returns both active and soft-deleted cards from the merchant's directory.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No card found with the provided card_id or token in this merchant's directory.
+            webfunction.BadRequestError: code "NOT_FOUND" - No card found with the provided card_id or token in this merchant's directory. The card may not exist or may not belong to the merchant's directory.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13050,7 +13050,7 @@ class AsyncClient:
         when you created the installation using the add-installation endpoint.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no installation with the provided ID exists in your merchant account. Double check that you're using the correct installation ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13064,7 +13064,7 @@ class AsyncClient:
         Retrieve details about a specific invoice in your merchant account.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no invoice with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no invoice with the provided ID exists in your merchant account. Double check that you're using the correct invoice ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13085,7 +13085,7 @@ class AsyncClient:
         the key using the `generate-key` endpoint.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no API key with the provided ID exists in your merchant
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no API key with the provided ID exists in your merchant account. Double check that you're using the correct key ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13099,7 +13099,7 @@ class AsyncClient:
         Retrieve details about a specific payment by its unique identifier or external ID.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13113,7 +13113,7 @@ class AsyncClient:
         Retrieve details about a specific payment link in your merchant account.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your merchant account. Double check that you're using the correct payment link ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13127,7 +13127,7 @@ class AsyncClient:
         Retrieves a specific payout by its unique identifier or external ID.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payout with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payout with the provided ID exists in your merchant account. Double check that you're using the correct payout ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13141,7 +13141,7 @@ class AsyncClient:
         Retrieves a specific refund by its unique identifier or external ID.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no refund with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no refund with the provided ID exists in your merchant account. Double check that you're using the correct refund ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13169,7 +13169,7 @@ class AsyncClient:
         Retrieve details about a specific balance top-up in your merchant account.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no topup with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no topup with the provided ID exists in your merchant account. Double check that you're using the correct topup ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13183,7 +13183,7 @@ class AsyncClient:
         Retrieves a specific virtual account by its unique identifier.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no virtual account with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no virtual account with the provided ID exists in your merchant account. Double check that you're using the correct virtual account ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13197,7 +13197,7 @@ class AsyncClient:
         Retrieves details about a specific webhook in merchant account.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no webhook with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no webhook with the provided ID exists in your merchant account. Double check that you're using the correct webhook ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13261,7 +13261,7 @@ class AsyncClient:
         Returns an object containing the URL and the object key (which includes the timestamped filename).
 
         Raises:
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13321,11 +13321,11 @@ class AsyncClient:
         and details.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - The payment session ID provided doesn't match any active session in
-            webfunction.BadRequestError: code "CONFLICT" - The payment session amount and currency do not match the amount and
-            webfunction.BadRequestError: code "NOT_SUPPORTED" - The payment method selected does not support the requested operation.
-            webfunction.BadRequestError: code "CUSTOMER_REQUIRED" - A customer identifier is required when the payment session uses a saved
-            webfunction.BadRequestError: code "CUSTOMER_MISMATCH" - The customer identifier provided does not match the saved card on the
+            webfunction.BadRequestError: code "NOT_FOUND" - The payment session ID provided doesn't match any active session in our system, or the card_id doesn't match any card belonging to the customer. This usually means the session has expired or was already used, or the card has been deleted. The customer should select their payment method again in the SDK to generate a new session.
+            webfunction.BadRequestError: code "CONFLICT" - The payment session amount and currency do not match the amount and currency provided in the request. The payment session was created with specific values that must match when initiating the payment flow. Ensure the amount and currency in your request match the values used when creating the payment session. The payment external_id must also be unique within the merchant account.
+            webfunction.BadRequestError: code "NOT_SUPPORTED" - The payment method selected does not support the requested operation. This occurs when capture is set to false but the payment method's integrations do not support authorization without capture. Choose a different payment method or set capture to true.
+            webfunction.BadRequestError: code "CUSTOMER_REQUIRED" - A customer identifier is required when the payment session uses a saved card token. Provide customer_id, customer_email, or customer_mobile to identify the card's owner.
+            webfunction.BadRequestError: code "CUSTOMER_MISMATCH" - The customer identifier provided does not match the saved card on the payment session. When the session was created with a saved card token, the customer_id or customer_email must belong to the card's owner.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13603,7 +13603,7 @@ class AsyncClient:
         Retrieves all activities, events, and payment session information for a given payment.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13617,7 +13617,7 @@ class AsyncClient:
         Returns a paginated list of payments associated with a specific payment link.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment link with the provided ID exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13710,7 +13710,7 @@ class AsyncClient:
         Retrieves all activities, events, and payout session information for a given payout.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payout with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payout with the provided ID exists in your merchant account. Double check that you're using the correct payout ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -13957,7 +13957,7 @@ class AsyncClient:
         Temporarily disable a webhook connection.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when the webhook endpoint with the provided ID could not be found.
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when the webhook endpoint with the provided ID could not be found. Double check that you're using the correct webhook ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14022,7 +14022,7 @@ class AsyncClient:
 
         Raises:
             webfunction.BadRequestError: code "NOT_FOUND" - No payment with the provided ID exists in your merchant account.
-            webfunction.BadRequestError: code "NOT_REFUNDABLE" - Payment is not eligible for refund. This can happen if the payment
+            webfunction.BadRequestError: code "NOT_REFUNDABLE" - Payment is not eligible for refund. This can happen if the payment has not been billed yet, is already fully refunded, or the integration does not support refunds.
             webfunction.BadRequestError: code "AMOUNT_EXCEEDS_LIMIT" - The refund amount exceeds the remaining refundable amount.
             webfunction.BadRequestError: code "CONFLICT" - A refund with the provided external ID already exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
@@ -14054,7 +14054,7 @@ class AsyncClient:
         or the external ID provided when the contact was created.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id.
+            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id. The contact may not exist or may belong to a different merchant.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14148,7 +14148,7 @@ class AsyncClient:
         Raises:
             webfunction.BadRequestError: code "NOT_FOUND" - The key person with the provided ID could not be found in your merchant account. Verify that you're using the correct key person ID.
             webfunction.BadRequestError: code "NOT_BUSINESS" - This merchant account is not registered as a business. Only business merchant accounts can manage key persons.
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14195,8 +14195,8 @@ class AsyncClient:
         Remove a sales channel for the merchant.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no sales channel with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no sales channel with the provided ID exists in your merchant account.
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14235,11 +14235,11 @@ class AsyncClient:
         method to use this endpoint.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - The installation, card, or token could not be found. Double check that
-            webfunction.BadRequestError: code "NOT_ALLOWED" - Merchant initiated transactions are not allowed for this payment method.
+            webfunction.BadRequestError: code "NOT_FOUND" - The installation, card, or token could not be found. Double check that you are using the correct IDs and that the card belongs to the specified customer.
+            webfunction.BadRequestError: code "NOT_ALLOWED" - Merchant initiated transactions are not allowed for this payment method. Contact support to enable the MIT flag on your card payment method.
             webfunction.BadRequestError: code "NOT_ENABLED" - This installation is currently disabled.
             webfunction.BadRequestError: code "TOKEN_ALREADY_USED" - This token has already been used. Request a new token from tokenize-card.
-            webfunction.BadRequestError: code "NOT_SUPPORTED" - The payment method does not support the requested operation.
+            webfunction.BadRequestError: code "NOT_SUPPORTED" - The payment method does not support the requested operation. This occurs when capture is set to false but the payment method's integrations do not support authorization without capture.
             webfunction.BadRequestError: code "CONFLICT" - A payment with the same external_id already exists in this merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
@@ -14287,7 +14287,7 @@ class AsyncClient:
         Enable temporarily disabled webhook connection.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when the webhook endpoint with the provided ID could not be found.
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when the webhook endpoint with the provided ID could not be found. Double check that you're using the correct webhook ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14363,7 +14363,7 @@ class AsyncClient:
         status of a checkout, see which payment methods were used, and get customer information.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no checkout with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no checkout with the provided ID exists in your merchant account. Double check that you're using the correct checkout ID.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14393,7 +14393,7 @@ class AsyncClient:
         or the external ID provided when the contact was created.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id.
+            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id. The contact may not exist or may belong to a different merchant.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14502,7 +14502,7 @@ class AsyncClient:
         Retrieves a monthly billing archive by its ID (i.e., month and year in `YYYY-MM` format).
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No archive found with the provided monthly_billing_archive_id.
+            webfunction.BadRequestError: code "NOT_FOUND" - No archive found with the provided monthly_billing_archive_id. This could indicate that there was no activity for that month, or that the archive has not yet been created.
             webfunction.BadRequestError: code "INVALID" - The provided monthly_billing_archive_id could not be parsed as a valid month (expected format: 'YYYY-MM').
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
@@ -14546,7 +14546,7 @@ class AsyncClient:
         This endpoint requires authentication and will only return details for the authenticated merchant.
 
         Raises:
-            webfunction.BadRequestError: code "NO_ONBOARDING" - This error occurs when the merchant has no onboarding available.
+            webfunction.BadRequestError: code "NO_ONBOARDING" - This error occurs when the merchant has no onboarding available. Ensure that the merchant has started the onboarding process before attempting to retrieve it.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14604,8 +14604,8 @@ class AsyncClient:
         This affects how the `transactions` array is structured and the `granularity` field in the response.
 
         Raises:
-            webfunction.BadRequestError: code "INVALID_DATE_FORMAT" - This error occurs when the date_input parameter is not in a supported format.
-            webfunction.BadRequestError: code "INVALID_DATE_RANGE" - This error occurs when the end date is before the start date in a date range.
+            webfunction.BadRequestError: code "INVALID_DATE_FORMAT" - This error occurs when the date_input parameter is not in a supported format. Please use one of the supported formats: YYYY-MM-DD, YYYY-MM-DD..YYYY-MM-DD, or keywords.
+            webfunction.BadRequestError: code "INVALID_DATE_RANGE" - This error occurs when the end date is before the start date in a date range. Please ensure the end date is after or equal to the start date.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14645,8 +14645,8 @@ class AsyncClient:
         This affects how the `transactions` array is structured and the `granularity` field in the response.
 
         Raises:
-            webfunction.BadRequestError: code "INVALID_DATE_FORMAT" - This error occurs when the date_input parameter is not in a supported format.
-            webfunction.BadRequestError: code "INVALID_DATE_RANGE" - This error occurs when the end date is before the start date in a date range.
+            webfunction.BadRequestError: code "INVALID_DATE_FORMAT" - This error occurs when the date_input parameter is not in a supported format. Please use one of the supported formats: YYYY-MM-DD, YYYY-MM-DD..YYYY-MM-DD, or keywords.
+            webfunction.BadRequestError: code "INVALID_DATE_RANGE" - This error occurs when the end date is before the start date in a date range. Please ensure the end date is after or equal to the start date.
             webfunction.BadRequestError: code "NOT_FOUND" - The terminal specified by `terminal_id` could not be found for this merchant.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
@@ -14666,8 +14666,8 @@ class AsyncClient:
         reversed, its status changes to `REVERSED`.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_REVERSIBLE" - Payment is not eligible for reversal. This can happen if the payment
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
+            webfunction.BadRequestError: code "NOT_REVERSIBLE" - Payment is not eligible for reversal. This can happen if the payment is not in an authorized state, the reversal window has passed, or the integration does not support reversals.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14778,7 +14778,7 @@ class AsyncClient:
         Raises:
             webfunction.BadRequestError: code "CONFLICT" - A payout with the same external_id already exists in this merchant account.
             webfunction.BadRequestError: code "NOT_FOUND" - The bank account does not exist or the payout method is not configured for this merchant.
-            webfunction.BadRequestError: code "INSUFFICIENT_BALANCE" - The merchant does not have sufficient balance to complete this payout.
+            webfunction.BadRequestError: code "INSUFFICIENT_BALANCE" - The merchant does not have sufficient balance to complete this payout. The requested amount exceeds the available balance in the merchant's account.
             webfunction.BadRequestError: code "INVALID_AMOUNT" - The payout amount exceeds the merchant or payout method limits.
             webfunction.BadRequestError: code "PAYOUTS_BLOCKED" - Payouts are currently blocked for this merchant.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
@@ -14810,7 +14810,7 @@ class AsyncClient:
             webfunction.BadRequestError: code "CONFLICT" - A payout with the same external_id already exists in this merchant account.
             webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided recipient_id, the bank account does not exist or does not belong to the contact, or the payout method is not configured for this merchant.
             webfunction.BadRequestError: code "INVALID_OPERATION" - The contact does not have a primary bank account. Please specify a bank_account_id.
-            webfunction.BadRequestError: code "INSUFFICIENT_BALANCE" - The merchant does not have sufficient balance to complete this payout.
+            webfunction.BadRequestError: code "INSUFFICIENT_BALANCE" - The merchant does not have sufficient balance to complete this payout. The requested amount exceeds the available balance in the merchant's account.
             webfunction.BadRequestError: code "INVALID_MOBILE_NUMBER" - The mobile number must be a valid local number (e.g. 0812223333) or E.164 number (e.g. +66812223333).
             webfunction.BadRequestError: code "INVALID_NATIONAL_ID" - The national ID must be exactly 13 digits.
             webfunction.BadRequestError: code "INVALID_AMOUNT" - The payout amount exceeds the merchant or payout method limits.
@@ -14869,7 +14869,7 @@ class AsyncClient:
 
         Raises:
             webfunction.BadRequestError: code "ALREADY_SET" - The entity type has already been set for this merchant account and cannot be changed. You must create a new merchant account if you need a different entity type.
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -14904,8 +14904,8 @@ class AsyncClient:
         The endpoint returns true if the classification was successfully set.
 
         Raises:
-            webfunction.BadRequestError: code "ALREADY_SET" - The merchant classification has already been set for this account and cannot be
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "ALREADY_SET" - The merchant classification has already been set for this account and cannot be changed. You must create a new merchant account if you need a different classification.
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -15198,7 +15198,7 @@ class AsyncClient:
         `confirm-branding-upload` endpoints.
 
         Raises:
-            webfunction.BadRequestError: code "INVALID_RECORD" - This error occurs when the record contains invalid parameters. Common cases
+            webfunction.BadRequestError: code "INVALID_RECORD" - This error occurs when the record contains invalid parameters. Common cases include invalid hex color formats, unsupported font families, or invalid font variants for the specified font family.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -15225,7 +15225,7 @@ class AsyncClient:
 
         Raises:
             webfunction.BadRequestError: code "NOT_BUSINESS" - This error occurs when attempting to update business details for a merchant that is not registered as a business entity. Business details can only be updated for business merchants, not individual merchants.
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -15241,9 +15241,9 @@ class AsyncClient:
         The service will check for conflicts with other contacts if the new values already exist.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id.
-            webfunction.BadRequestError: code "CONFLICT" - A contact with the same email or mobile number already exists.
-            webfunction.BadRequestError: code "VALIDATION_ERROR" - Validation failed. At least one of contact_email or contact_mobile must be provided.
+            webfunction.BadRequestError: code "NOT_FOUND" - No contact found with the provided contact_id. The contact may not exist or may belong to a different merchant.
+            webfunction.BadRequestError: code "CONFLICT" - A contact with the same email or mobile number already exists. Each contact must have unique values for these fields.
+            webfunction.BadRequestError: code "VALIDATION_ERROR" - Validation failed. At least one of contact_email or contact_mobile must be provided. If contact_email is provided, it must be a valid email format.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -15281,7 +15281,7 @@ class AsyncClient:
 
         Raises:
             webfunction.BadRequestError: code "NOT_INDIVIDUAL" - This error occurs when attempting to update individual details for a business merchant account.
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -15320,8 +15320,8 @@ class AsyncClient:
         individual merchants.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no key person with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no key person with the provided ID exists in your merchant account.
+            webfunction.BadRequestError: code "NOT_EDITABLE" - This error occurs when the onboarding status of the merchant is no longer in draft.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -15350,7 +15350,7 @@ class AsyncClient:
         Update a sales channel for the merchant. Note that the platform cannot be changed after creation.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no sales channel with the provided ID exists in your
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no sales channel with the provided ID exists in your merchant account.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
@@ -15406,8 +15406,8 @@ class AsyncClient:
         Once a payment is successfully voided, its status changes to `VOIDED`.
 
         Raises:
-            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your
-            webfunction.BadRequestError: code "NOT_VOIDABLE" - Payment is not eligible for void. This can happen if the payment is
+            webfunction.BadRequestError: code "NOT_FOUND" - This error occurs when no payment with the provided ID exists in your merchant account. Double check that you're using the correct payment ID.
+            webfunction.BadRequestError: code "NOT_VOIDABLE" - Payment is not eligible for void. This can happen if the payment is not in a captured state, has already settled into a statement, the void window has passed, or the integration does not support voids.
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
             webfunction.JsonParseError: if the response body isn't valid JSON
         """
