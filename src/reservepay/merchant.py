@@ -422,7 +422,7 @@ class PaymentMethodAttributes:
     category: str = field(metadata={"wire_name": "category"})
     """The category of the payment method.
     """
-    platforms: Literal["WEB", "IOS", "ANDROID", "TERMINAL"] = field(metadata={"wire_name": "platforms"})
+    platforms: List[Literal["WEB", "IOS", "ANDROID", "TERMINAL"]] = field(metadata={"wire_name": "platforms"})
     """The platforms on which the payment method is available. One of: "WEB", "IOS", "ANDROID", "TERMINAL".
     """
 
@@ -1551,6 +1551,12 @@ class FilterPaymentsArgs:
     payment_method: Optional[str] = field(default=None, metadata={"wire_name": "payment_method"})
     """Filter by payment method name. Examples: 'card', 'promptpay', 'k_plus'
     """
+    payment_method_category: Optional[str] = field(default=None, metadata={"wire_name": "payment_method_category"})
+    """Filter by payment method category, as configured for each payment method. Returns payments from any payment method in that category. Must match the category exactly, including case. Examples: 'mobile_banking', 'wallet'
+    """
+    issuer_id: Optional[str] = field(default=None, metadata={"wire_name": "issuer_id"})
+    """Filter by installment issuer ID, as returned by `list-installment-issuers`. Matches payments made with a card from that issuer, and installment payments whose installment plan is for that issuer. Combine with `payment_method: 'installment'` to return installment payments only. Examples: `bng_1234567890`
+    """
     currency: Optional[str] = field(default=None, metadata={"wire_name": "currency"})
     """Filter by currency code. Examples: 'THB', 'USD'. Case-insensitive.
     """
@@ -1580,6 +1586,8 @@ class FilterPaymentsArgs:
             authorized_at=d.get("authorized_at"),
             captured_at=d.get("captured_at"),
             payment_method=d.get("payment_method"),
+            payment_method_category=d.get("payment_method_category"),
+            issuer_id=d.get("issuer_id"),
             currency=d.get("currency"),
             amount=d.get("amount"),
             contact_id=d.get("contact_id"),
@@ -1701,6 +1709,9 @@ class PaymentAttributes:
     cardholder_name: Optional[str] = field(default=None, metadata={"wire_name": "cardholder_name"})
     """The cardholder's name as entered on the card. Null for non-card payment methods, card payments without a token, or when no name was entered.
     """
+    card_expiration_date: Optional[str] = field(default=None, metadata={"wire_name": "card_expiration_date"})
+    """The card's expiration date as captured, usually in MM/YY format. Null for non-card payment methods, card payments without a token, or when no expiration date was captured.
+    """
     authorized_at: Optional[float] = field(default=None, metadata={"wire_name": "authorized_at"})
     """When the payment was authorized (Unix timestamp).
     """
@@ -1761,6 +1772,9 @@ class PaymentAttributes:
     payment_session_id: Optional[str] = field(default=None, metadata={"wire_name": "payment_session_id"})
     """The ID of the payment session associated with this payment, if any.
     """
+    checkout_id: Optional[str] = field(default=None, metadata={"wire_name": "checkout_id"})
+    """The ID of the checkout associated with this payment, if any.
+    """
     installment_term: Optional[float] = field(default=None, metadata={"wire_name": "installment_term"})
     """The number of monthly installments. Null for non-installment payments.
     """
@@ -1804,6 +1818,7 @@ class PaymentAttributes:
             card_masked_number=d.get("card_masked_number"),
             card_network=d.get("card_network"),
             cardholder_name=d.get("cardholder_name"),
+            card_expiration_date=d.get("card_expiration_date"),
             authorized_at=d.get("authorized_at"),
             captured_at=d.get("captured_at"),
             voided_at=d.get("voided_at"),
@@ -1824,6 +1839,7 @@ class PaymentAttributes:
             terminal_id=d.get("terminal_id"),
             payment_link_id=d.get("payment_link_id"),
             payment_session_id=d.get("payment_session_id"),
+            checkout_id=d.get("checkout_id"),
             installment_term=d.get("installment_term"),
             interest_bearer=d.get("interest_bearer"),
             installment_interest_rate=d.get("installment_interest_rate"),
@@ -2016,8 +2032,20 @@ class FilterTerminalsArgs:
     page: Optional[float] = field(default=None, metadata={"wire_name": "page"})
     """Page number for pagination. Default: 1 (first page)
     """
+    name: Optional[str] = field(default=None, metadata={"wire_name": "name"})
+    """Filter by terminal name (substring, case-insensitive).
+    """
+    branch_name: Optional[str] = field(default=None, metadata={"wire_name": "branch_name"})
+    """Filter by terminal branch name (substring, case-insensitive).
+    """
     terms: Optional[str] = field(default=None, metadata={"wire_name": "terms"})
-    """Full-text search across terminal content. Searches terminal name, external ID, and branch name. Uses fuzzy matching for partial text matches.
+    """Free-text search across terminal name, terminal ID, external ID, and branch name (substring, case-insensitive).
+    """
+    created_at: Optional[str] = field(default=None, metadata={"wire_name": "created_at"})
+    """Filter by creation date. Supports: specific date (YYYY-MM-DD), ISO 8601 datetime, date or datetime range (start..end), or keywords (today, yesterday, `this_week`, `last_week`, `this_month`, `last_month`). Calendar boundaries use the merchant provider timezone; a single date or datetime selects that local day, while datetime range endpoints retain their exact times.
+    """
+    connected_at: Optional[str] = field(default=None, metadata={"wire_name": "connected_at"})
+    """Filter by connection date. Supports: specific date (YYYY-MM-DD), ISO 8601 datetime, date or datetime range (start..end), or keywords (today, yesterday, `this_week`, `last_week`, `this_month`, `last_month`). Calendar boundaries use the merchant provider timezone; a single date or datetime selects that local day, while datetime range endpoints retain their exact times.
     """
 
     @classmethod
@@ -2025,7 +2053,11 @@ class FilterTerminalsArgs:
         return cls(
             per_page=d.get("per_page"),
             page=d.get("page"),
+            name=d.get("name"),
+            branch_name=d.get("branch_name"),
             terms=d.get("terms"),
+            created_at=d.get("created_at"),
+            connected_at=d.get("connected_at"),
         )
 
 
@@ -2552,7 +2584,7 @@ class FindDisputeResult:
     reason: str = field(metadata={"wire_name": "reason"})
     """The reason code for the dispute.
     """
-    suggested_evidence: Literal["cancellation_policy", "cancellation_request_records", "common_evidence", "customer_communication", "device_id_ip_data", "marketing_materials", "payment_logs", "payment_processing_records", "receipt", "refund_issuance", "refund_policy", "refund_records", "return_policy", "shipping_documentation", "supplier_certification", "technical_support_logs", "transaction_history", "transaction_logs"] = field(metadata={"wire_name": "suggested_evidence"})
+    suggested_evidence: List[Literal["cancellation_policy", "cancellation_request_records", "common_evidence", "customer_communication", "device_id_ip_data", "marketing_materials", "payment_logs", "payment_processing_records", "receipt", "refund_issuance", "refund_policy", "refund_records", "return_policy", "shipping_documentation", "supplier_certification", "technical_support_logs", "transaction_history", "transaction_logs"]] = field(metadata={"wire_name": "suggested_evidence"})
     """A list of suggested evidence types for this dispute based on its reason. One of: "cancellation_policy", "cancellation_request_records", "common_evidence", "customer_communication", "device_id_ip_data", "marketing_materials", "payment_logs", "payment_processing_records", "receipt", "refund_issuance", "refund_policy", "refund_records", "return_policy", "shipping_documentation", "supplier_certification", "technical_support_logs", "transaction_history", "transaction_logs".
     """
     created_at: float = field(metadata={"wire_name": "created_at"})
@@ -2807,7 +2839,7 @@ class FindKeyResult:
     created_at: float = field(metadata={"wire_name": "created_at"})
     """The timestamp of the key creation as a Unix timestamp.
     """
-    permissions: Literal["authorize_payout", "manage_contacts", "manage_developer_settings", "manage_disputes", "manage_payouts", "manage_plan", "manage_settings", "manage_team", "manage_terminals", "manage_transactions", "view_contacts", "view_disputes", "view_payouts", "view_plan", "view_settings", "view_statements", "view_team", "view_transactions"] = field(metadata={"wire_name": "permissions"})
+    permissions: List[Literal["authorize_payout", "manage_contacts", "manage_developer_settings", "manage_disputes", "manage_payouts", "manage_plan", "manage_settings", "manage_team", "manage_terminals", "manage_transactions", "view_contacts", "view_disputes", "view_payouts", "view_plan", "view_settings", "view_statements", "view_team", "view_transactions"]] = field(metadata={"wire_name": "permissions"})
     """Permission tokens granted to this key. One of: "authorize_payout", "manage_contacts", "manage_developer_settings", "manage_disputes", "manage_payouts", "manage_plan", "manage_settings", "manage_team", "manage_terminals", "manage_transactions", "view_contacts", "view_disputes", "view_payouts", "view_plan", "view_settings", "view_statements", "view_team", "view_transactions".
     """
 
@@ -2908,6 +2940,9 @@ class FindPaymentResult:
     cardholder_name: Optional[str] = field(default=None, metadata={"wire_name": "cardholder_name"})
     """The cardholder's name as entered on the card. Null for non-card payment methods, card payments without a token, or when no name was entered.
     """
+    card_expiration_date: Optional[str] = field(default=None, metadata={"wire_name": "card_expiration_date"})
+    """The card's expiration date as captured, usually in MM/YY format. Null for non-card payment methods, card payments without a token, or when no expiration date was captured.
+    """
     authorized_at: Optional[float] = field(default=None, metadata={"wire_name": "authorized_at"})
     """When the payment was authorized (Unix timestamp).
     """
@@ -2968,6 +3003,9 @@ class FindPaymentResult:
     payment_session_id: Optional[str] = field(default=None, metadata={"wire_name": "payment_session_id"})
     """The ID of the payment session associated with this payment, if any.
     """
+    checkout_id: Optional[str] = field(default=None, metadata={"wire_name": "checkout_id"})
+    """The ID of the checkout associated with this payment, if any.
+    """
     installment_term: Optional[float] = field(default=None, metadata={"wire_name": "installment_term"})
     """The number of monthly installments. Null for non-installment payments.
     """
@@ -3011,6 +3049,7 @@ class FindPaymentResult:
             card_masked_number=d.get("card_masked_number"),
             card_network=d.get("card_network"),
             cardholder_name=d.get("cardholder_name"),
+            card_expiration_date=d.get("card_expiration_date"),
             authorized_at=d.get("authorized_at"),
             captured_at=d.get("captured_at"),
             voided_at=d.get("voided_at"),
@@ -3031,6 +3070,7 @@ class FindPaymentResult:
             terminal_id=d.get("terminal_id"),
             payment_link_id=d.get("payment_link_id"),
             payment_session_id=d.get("payment_session_id"),
+            checkout_id=d.get("checkout_id"),
             installment_term=d.get("installment_term"),
             interest_bearer=d.get("interest_bearer"),
             installment_interest_rate=d.get("installment_interest_rate"),
@@ -3579,7 +3619,7 @@ class FindWebhookResult:
     verification_key: str = field(metadata={"wire_name": "verification_key"})
     """The key used to verify webhook signatures.
     """
-    events: Literal["PAYMENT_COMPLETED", "PAYMENT_VOIDED", "PAYMENT_REVERSED", "PAYMENT_CANCELLED", "PAYMENT_AUTHORIZED", "PAYMENT_EXPIRED", "PAYOUT_COMPLETED", "TOPUP_SETTLED"] = field(metadata={"wire_name": "events"})
+    events: List[Literal["PAYMENT_COMPLETED", "PAYMENT_VOIDED", "PAYMENT_REVERSED", "PAYMENT_CANCELLED", "PAYMENT_AUTHORIZED", "PAYMENT_EXPIRED", "PAYOUT_COMPLETED", "TOPUP_SETTLED"]] = field(metadata={"wire_name": "events"})
     """List of event types that this webhook endpoint will receive. One of: "PAYMENT_COMPLETED", "PAYMENT_VOIDED", "PAYMENT_REVERSED", "PAYMENT_CANCELLED", "PAYMENT_AUTHORIZED", "PAYMENT_EXPIRED", "PAYOUT_COMPLETED", "TOPUP_SETTLED".
     """
     created_at: float = field(metadata={"wire_name": "created_at"})
@@ -4454,7 +4494,7 @@ class DisputeAttributes:
     reason: str = field(metadata={"wire_name": "reason"})
     """The reason code for the dispute.
     """
-    suggested_evidence: Literal["cancellation_policy", "cancellation_request_records", "common_evidence", "customer_communication", "device_id_ip_data", "marketing_materials", "payment_logs", "payment_processing_records", "receipt", "refund_issuance", "refund_policy", "refund_records", "return_policy", "shipping_documentation", "supplier_certification", "technical_support_logs", "transaction_history", "transaction_logs"] = field(metadata={"wire_name": "suggested_evidence"})
+    suggested_evidence: List[Literal["cancellation_policy", "cancellation_request_records", "common_evidence", "customer_communication", "device_id_ip_data", "marketing_materials", "payment_logs", "payment_processing_records", "receipt", "refund_issuance", "refund_policy", "refund_records", "return_policy", "shipping_documentation", "supplier_certification", "technical_support_logs", "transaction_history", "transaction_logs"]] = field(metadata={"wire_name": "suggested_evidence"})
     """A list of suggested evidence types for this dispute based on its reason. One of: "cancellation_policy", "cancellation_request_records", "common_evidence", "customer_communication", "device_id_ip_data", "marketing_materials", "payment_logs", "payment_processing_records", "receipt", "refund_issuance", "refund_policy", "refund_records", "return_policy", "shipping_documentation", "supplier_certification", "technical_support_logs", "transaction_history", "transaction_logs".
     """
     created_at: float = field(metadata={"wire_name": "created_at"})
@@ -4596,6 +4636,26 @@ class EmailRecipientAttributes:
 
 
 @dataclass
+class ListInstallmentIssuersResult:
+    """ListInstallmentIssuersResult is the result of the list-installment-issuers endpoint.
+    """
+
+    issuer_id: str = field(metadata={"wire_name": "issuer_id"})
+    """The ID of the installment issuer. Use it as `issuer_id` with `filter-payments`.
+    """
+    display_name: str = field(metadata={"wire_name": "display_name"})
+    """The display name of the installment issuer, as configured in admin.
+    """
+
+    @classmethod
+    def _from_dict(cls, d: Dict[str, Any]) -> "ListInstallmentIssuersResult":
+        return cls(
+            issuer_id=d["issuer_id"],
+            display_name=d["display_name"],
+        )
+
+
+@dataclass
 class ListInvoicesArgs:
     """ListInvoicesArgs holds the arguments for the list-invoices endpoint.
     """
@@ -4711,7 +4771,7 @@ class KeyAttributes:
     created_at: float = field(metadata={"wire_name": "created_at"})
     """The timestamp of the key creation as a Unix timestamp.
     """
-    permissions: Literal["authorize_payout", "manage_contacts", "manage_developer_settings", "manage_disputes", "manage_payouts", "manage_plan", "manage_settings", "manage_team", "manage_terminals", "manage_transactions", "view_contacts", "view_disputes", "view_payouts", "view_plan", "view_settings", "view_statements", "view_team", "view_transactions"] = field(metadata={"wire_name": "permissions"})
+    permissions: List[Literal["authorize_payout", "manage_contacts", "manage_developer_settings", "manage_disputes", "manage_payouts", "manage_plan", "manage_settings", "manage_team", "manage_terminals", "manage_transactions", "view_contacts", "view_disputes", "view_payouts", "view_plan", "view_settings", "view_statements", "view_team", "view_transactions"]] = field(metadata={"wire_name": "permissions"})
     """Permission tokens granted to this key. One of: "authorize_payout", "manage_contacts", "manage_developer_settings", "manage_disputes", "manage_payouts", "manage_plan", "manage_settings", "manage_team", "manage_terminals", "manage_transactions", "view_contacts", "view_disputes", "view_payouts", "view_plan", "view_settings", "view_statements", "view_team", "view_transactions".
     """
 
@@ -5253,7 +5313,7 @@ class PlannedMaintenanceAttributes:
     service_name: str = field(metadata={"wire_name": "service_name"})
     """Name of the service undergoing maintenance, in the requested locale.
     """
-    affected_services: Literal["api", "vault", "relay", "wallet", "merchant-dashboard", "website", "developer"] = field(metadata={"wire_name": "affected_services"})
+    affected_services: List[Literal["api", "vault", "relay", "wallet", "merchant-dashboard", "website", "developer"]] = field(metadata={"wire_name": "affected_services"})
     """Services affected by the maintenance window. One of: "api", "vault", "relay", "wallet", "merchant-dashboard", "website", "developer".
     """
     status: Literal["pending", "in_progress", "completed"] = field(metadata={"wire_name": "status"})
@@ -5378,7 +5438,7 @@ class PlanAttributes:
     """The ordering of the plan's tier. Selecting a plan whose rank is greater than or equal to the current plan's rank takes effect immediately; selecting a lower rank is scheduled for the start of the next billing month.
     """
     skus: List[PlanSkuAttributes] = field(metadata={"wire_name": "skus"})
-    """List of SKUs included in this plan.
+    """List of SKUs the merchant is billed with on this plan. A merchant's custom SKU for this plan's tier replaces the plan SKU with the same `code`, and custom SKUs for codes the plan does not have are included. Empty when the plan has no `id`.
     """
     id: Optional[str] = field(default=None, metadata={"wire_name": "id"})
     """The unique identifier of the plan.
@@ -5491,7 +5551,7 @@ class RoleAttributes:
     custom: Literal[True, False] = field(metadata={"wire_name": "custom"})
     """Indicates whether the role is a custom role created by the merchant or a default system role. One of: True, False.
     """
-    permissions: Literal["authorize_payout", "view_team", "view_settings", "view_contacts", "view_transactions", "view_statements", "view_payouts", "view_plan", "view_disputes", "manage_team", "manage_settings", "manage_contacts", "manage_transactions", "manage_payouts", "manage_plan", "manage_developer_settings", "manage_terminals", "manage_disputes"] = field(metadata={"wire_name": "permissions"})
+    permissions: List[Literal["authorize_payout", "view_team", "view_settings", "view_contacts", "view_transactions", "view_statements", "view_payouts", "view_plan", "view_disputes", "manage_team", "manage_settings", "manage_contacts", "manage_transactions", "manage_payouts", "manage_plan", "manage_developer_settings", "manage_terminals", "manage_disputes"]] = field(metadata={"wire_name": "permissions"})
     """An array of permissions the role gives. One of: "authorize_payout", "view_team", "view_settings", "view_contacts", "view_transactions", "view_statements", "view_payouts", "view_plan", "view_disputes", "manage_team", "manage_settings", "manage_contacts", "manage_transactions", "manage_payouts", "manage_plan", "manage_developer_settings", "manage_terminals", "manage_disputes".
     """
 
@@ -5815,7 +5875,7 @@ class WebhookAttributes:
     verification_key: str = field(metadata={"wire_name": "verification_key"})
     """The key used to verify webhook signatures.
     """
-    events: Literal["PAYMENT_COMPLETED", "PAYMENT_VOIDED", "PAYMENT_REVERSED", "PAYMENT_CANCELLED", "PAYMENT_AUTHORIZED", "PAYMENT_EXPIRED", "PAYOUT_COMPLETED", "TOPUP_SETTLED"] = field(metadata={"wire_name": "events"})
+    events: List[Literal["PAYMENT_COMPLETED", "PAYMENT_VOIDED", "PAYMENT_REVERSED", "PAYMENT_CANCELLED", "PAYMENT_AUTHORIZED", "PAYMENT_EXPIRED", "PAYOUT_COMPLETED", "TOPUP_SETTLED"]] = field(metadata={"wire_name": "events"})
     """List of event types that this webhook endpoint will receive. One of: "PAYMENT_COMPLETED", "PAYMENT_VOIDED", "PAYMENT_REVERSED", "PAYMENT_CANCELLED", "PAYMENT_AUTHORIZED", "PAYMENT_EXPIRED", "PAYOUT_COMPLETED", "TOPUP_SETTLED".
     """
     created_at: float = field(metadata={"wire_name": "created_at"})
@@ -5928,7 +5988,7 @@ class ReconnectWebhookArgs:
     destination_url: str = field(metadata={"wire_name": "destination_url"})
     """The URL where webhook events will be sent. Must be a valid HTTP/HTTPS URL and match the specified protocol.
     """
-    events: Literal["PAYMENT_COMPLETED", "PAYMENT_VOIDED", "PAYMENT_REVERSED", "PAYMENT_CANCELLED", "PAYMENT_AUTHORIZED", "PAYMENT_EXPIRED", "PAYOUT_COMPLETED", "TOPUP_SETTLED"] = field(metadata={"wire_name": "events"})
+    events: List[Literal["PAYMENT_COMPLETED", "PAYMENT_VOIDED", "PAYMENT_REVERSED", "PAYMENT_CANCELLED", "PAYMENT_AUTHORIZED", "PAYMENT_EXPIRED", "PAYOUT_COMPLETED", "TOPUP_SETTLED"]] = field(metadata={"wire_name": "events"})
     """List of events for webhook One of: "PAYMENT_COMPLETED", "PAYMENT_VOIDED", "PAYMENT_REVERSED", "PAYMENT_CANCELLED", "PAYMENT_AUTHORIZED", "PAYMENT_EXPIRED", "PAYOUT_COMPLETED", "TOPUP_SETTLED".
     """
     signature_type: Optional[Literal["SHA256", "HMAC_SHA256", "ED25519"]] = field(default=None, metadata={"wire_name": "signature_type"})
@@ -6323,6 +6383,12 @@ class RetrieveBrandingResult:
     hide_logo: bool = field(metadata={"wire_name": "hide_logo"})
     """Whether to hide the logo completely from the payment interface.
     """
+    shop_name_font_family: str = field(metadata={"wire_name": "shop_name_font_family"})
+    """Font family for the shop name shown when no logo is displayed.
+    """
+    shop_name_font_variant: Literal["Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black"] = field(metadata={"wire_name": "shop_name_font_variant"})
+    """Font weight variant for the shop name. One of: "Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black".
+    """
     heading_font_family: str = field(metadata={"wire_name": "heading_font_family"})
     """Font family for headings.
     """
@@ -6399,6 +6465,8 @@ class RetrieveBrandingResult:
             sidebar_background_type=d["sidebar_background_type"],
             tile_sidebar_image=d["tile_sidebar_image"],
             hide_logo=d["hide_logo"],
+            shop_name_font_family=d["shop_name_font_family"],
+            shop_name_font_variant=d["shop_name_font_variant"],
             heading_font_family=d["heading_font_family"],
             heading_font_variant=d["heading_font_variant"],
             body_font_family=d["body_font_family"],
@@ -6435,7 +6503,7 @@ class RetrieveBrandingFontResult:
     category: Literal["sans-serif", "serif", "monospace", "display", "handwriting"] = field(metadata={"wire_name": "category"})
     """The font category that describes the font style and usage. One of: "sans-serif", "serif", "monospace", "display", "handwriting".
     """
-    variants: Literal["Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black"] = field(metadata={"wire_name": "variants"})
+    variants: List[Literal["Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black"]] = field(metadata={"wire_name": "variants"})
     """Available font weight variants for this font family. One of: "Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black".
     """
 
@@ -6500,6 +6568,9 @@ class RetrieveCheckoutResult:
     customer_name: Optional[str] = field(default=None, metadata={"wire_name": "customer_name"})
     """The name of the customer
     """
+    external_id: Optional[str] = field(default=None, metadata={"wire_name": "external_id"})
+    """The merchant's internal reference for this checkout. Copied onto the payment when the customer pays.
+    """
     payment_id: Optional[str] = field(default=None, metadata={"wire_name": "payment_id"})
     """The unique identifier of the payment associated with this checkout. When nil, the payment has not been paid yet.
     """
@@ -6517,6 +6588,7 @@ class RetrieveCheckoutResult:
             customer_email=d.get("customer_email"),
             customer_mobile=d.get("customer_mobile"),
             customer_name=d.get("customer_name"),
+            external_id=d.get("external_id"),
             payment_id=d.get("payment_id"),
         )
 
@@ -6657,7 +6729,7 @@ class CurrentPlanAttributes:
     """The ordering of the plan's tier. Selecting a plan whose rank is greater than or equal to the current plan's rank takes effect immediately; selecting a lower rank is scheduled for the start of the next billing month.
     """
     skus: List[PlanSkuAttributes] = field(metadata={"wire_name": "skus"})
-    """List of SKUs included in this plan.
+    """List of SKUs the merchant is billed with on this plan. A merchant's custom SKU for this plan's tier replaces the plan SKU with the same `code`, and custom SKUs for codes the plan does not have are included. Empty when the plan has no `id`.
     """
     id: Optional[str] = field(default=None, metadata={"wire_name": "id"})
     """The unique identifier of the plan.
@@ -7177,7 +7249,7 @@ class OnboardingAttributes:
     category_code: str = field(metadata={"wire_name": "category_code"})
     """The merchant category code (MCC) for the business.
     """
-    product_types: Literal["DIGITAL_GOODS", "PHYSICAL_GOODS", "SERVICES"] = field(metadata={"wire_name": "product_types"})
+    product_types: List[Literal["DIGITAL_GOODS", "PHYSICAL_GOODS", "SERVICES"]] = field(metadata={"wire_name": "product_types"})
     """List of product types the merchant will offer. One of: "DIGITAL_GOODS", "PHYSICAL_GOODS", "SERVICES".
     """
     key_people: List[KeyPersonAttributes] = field(metadata={"wire_name": "key_people"})
@@ -7881,7 +7953,7 @@ class SetMerchantClassificationArgs:
     category_code: str = field(metadata={"wire_name": "category_code"})
     """The 4-digit merchant category code (MCC) that best describes your primary business activity.
     """
-    product_types: Literal["DIGITAL_GOODS", "PHYSICAL_GOODS", "SERVICES"] = field(metadata={"wire_name": "product_types"})
+    product_types: List[Literal["DIGITAL_GOODS", "PHYSICAL_GOODS", "SERVICES"]] = field(metadata={"wire_name": "product_types"})
     """List of product/service types you offer. This helps us enable relevant features and apply appropriate policies for your business. You can select multiple types if your business spans different categories. One of: "DIGITAL_GOODS", "PHYSICAL_GOODS", "SERVICES".
     """
     expected_monthly_transaction_amount: Optional[float] = field(default=None, metadata={"wire_name": "expected_monthly_transaction_amount"})
@@ -7971,6 +8043,16 @@ class StartCheckoutArgs:
     interest_bearer: Optional[Literal["customer", "merchant"]] = field(default=None, metadata={"wire_name": "interest_bearer"})
     """Overrides who bears installment interest for this checkout. When omitted, the merchant's configured default is used. One of: "customer", "merchant".
     """
+    external_id: Optional[str] = field(default=None, metadata={"wire_name": "external_id"})
+    """Your unique reference for this checkout, such as an order or invoice number.
+    It is copied onto the payment when the customer completes checkout, so you
+    can look up the payment later instead of our payment ID. Must be unique
+    within this merchant account's payments when the payment is created.
+    1–128 characters after trimming leading and trailing whitespace. Must start
+    with a letter or digit. Remaining characters may be letters, digits, periods
+    (`.`), underscores (`_`), colons (`:`), slashes (`/`), or hyphens (`-`).
+    Blank or whitespace-only values are stored as null.
+    """
     customer_id: Optional[str] = field(default=None, metadata={"wire_name": "customer_id"})
     """Either a Customer ID (starting with `cst_`) or your own external
     customer identifier. We'll link this payment to an existing customer
@@ -7999,6 +8081,7 @@ class StartCheckoutArgs:
             currency=d["currency"],
             return_url=d["return_url"],
             interest_bearer=d.get("interest_bearer"),
+            external_id=d.get("external_id"),
             customer_id=d.get("customer_id"),
             customer_email=d.get("customer_email"),
             customer_mobile=d.get("customer_mobile"),
@@ -8041,6 +8124,9 @@ class StartCheckoutResult:
     customer_name: Optional[str] = field(default=None, metadata={"wire_name": "customer_name"})
     """The name of the customer
     """
+    external_id: Optional[str] = field(default=None, metadata={"wire_name": "external_id"})
+    """The merchant's internal reference for this checkout. Copied onto the payment when the customer pays.
+    """
     payment_id: Optional[str] = field(default=None, metadata={"wire_name": "payment_id"})
     """The unique identifier of the payment associated with this checkout. When nil, the payment has not been paid yet.
     """
@@ -8058,6 +8144,7 @@ class StartCheckoutResult:
             customer_email=d.get("customer_email"),
             customer_mobile=d.get("customer_mobile"),
             customer_name=d.get("customer_name"),
+            external_id=d.get("external_id"),
             payment_id=d.get("payment_id"),
         )
 
@@ -8142,7 +8229,7 @@ class SupportedPaymentMethodsResult:
     category: str = field(metadata={"wire_name": "category"})
     """The category of the payment method.
     """
-    platforms: Literal["WEB", "IOS", "ANDROID", "TERMINAL"] = field(metadata={"wire_name": "platforms"})
+    platforms: List[Literal["WEB", "IOS", "ANDROID", "TERMINAL"]] = field(metadata={"wire_name": "platforms"})
     """The platforms on which the payment method is available. One of: "WEB", "IOS", "ANDROID", "TERMINAL".
     """
 
@@ -8358,6 +8445,12 @@ class UpdateBrandingArgs:
     hide_logo: Optional[bool] = field(default=None, metadata={"wire_name": "hide_logo"})
     """Whether to hide the logo completely from the payment interface.
     """
+    shop_name_font_family: Optional[str] = field(default=None, metadata={"wire_name": "shop_name_font_family"})
+    """Font family for the shop name shown when no logo is displayed. Must be a valid Google Font or default font.
+    """
+    shop_name_font_variant: Optional[Literal["Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black"]] = field(default=None, metadata={"wire_name": "shop_name_font_variant"})
+    """Font weight variant for the shop name. One of: "Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black".
+    """
     heading_font_family: Optional[str] = field(default=None, metadata={"wire_name": "heading_font_family"})
     """Font family for headings. Must be a valid Google Font or default font.
     """
@@ -8398,6 +8491,8 @@ class UpdateBrandingArgs:
             sidebar_background_type=d.get("sidebar_background_type"),
             tile_sidebar_image=d.get("tile_sidebar_image"),
             hide_logo=d.get("hide_logo"),
+            shop_name_font_family=d.get("shop_name_font_family"),
+            shop_name_font_variant=d.get("shop_name_font_variant"),
             heading_font_family=d.get("heading_font_family"),
             heading_font_variant=d.get("heading_font_variant"),
             body_font_family=d.get("body_font_family"),
@@ -9689,15 +9784,15 @@ class Client:
         Returns a paginated list of payments for the authenticated merchant with advanced filtering capabilities.
 
         This endpoint provides comprehensive search functionality using the SearchIndex infrastructure,
-        allowing you to filter payments by various criteria including status, payment method, currency,
-        amount ranges, terminal, and date ranges.
+        allowing you to filter payments by various criteria including status, payment method, payment method category,
+        installment issuer, currency, amount ranges, terminal, and date ranges.
 
         The response includes pagination controls with `previous` and `next` cursors that can be used
         to navigate through the payment history efficiently.
 
         ### Features:
         - **Full-text search**: Search across payment content
-        - **Advanced filtering**: Filter by status, payment method, currency, amount, contact, terminal, dates, and fraud finding
+        - **Advanced filtering**: Filter by status, payment method, payment method category, installment issuer, currency, amount, contact, terminal, dates, and fraud finding
         - **Contact filtering**: Filter by contact internal ID or external ID
         - **Date range support**: Support for specific dates, datetimes, date ranges, datetime ranges, and keywords
         - **Pagination**: Efficient cursor-based pagination
@@ -9741,12 +9836,12 @@ class Client:
         return TypedPage(result, lambda v: PayoutAttributes._from_dict(v))
 
     def filter_terminals(self, args: Optional[FilterTerminalsArgs] = None) -> "TypedPage[TerminalAttributes]":
-        """## Filter Terminals
+        """## Filter terminals
 
-        Returns a paginated list of terminals for the authenticated merchant with search capabilities.
+        Returns a paginated list of terminals for the authenticated merchant with filtering capabilities.
 
-        This endpoint provides full-text search functionality using the SearchIndex infrastructure,
-        allowing you to search terminals by name, external ID, and branch name.
+        Filter by terminal name, branch name (substring match), creation date, and connection date. Free-text
+        `terms` matches terminal name, terminal ID, external ID, and branch name. Results are ordered by creation date descending.
 
         Raises:
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
@@ -10352,6 +10447,23 @@ class Client:
         result = self._raw.call("list-installations", raw_args)
         return [InstallationAttributes._from_dict(_item) for _item in (result or [])]
 
+    def list_installment_issuers(self) -> List[ListInstallmentIssuersResult]:
+        """## List installment issuers
+
+        Returns the card issuers the authenticated merchant can take installment payments with, sorted by display name.
+
+        Use an issuer's `issuer_id` with `filter-payments` to list the payments made with cards from that issuer.
+
+        Returns an empty array when the merchant does not offer installments.
+
+        Raises:
+            webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
+            webfunction.JsonParseError: if the response body isn't valid JSON
+        """
+        raw_args: Dict[str, Any] = {}
+        result = self._raw.call("list-installment-issuers", raw_args)
+        return [ListInstallmentIssuersResult._from_dict(_item) for _item in (result or [])]
+
     def list_invoices(self, args: Optional[ListInvoicesArgs] = None) -> "TypedPage[InvoiceAttributes]":
         """## List invoices
 
@@ -10592,7 +10704,7 @@ class Client:
         """## List all permissions
 
         Retrieves a list of all permissions available for roles within the merchant account.
-        These permissions can be assigned to custom roles created by the merchant.
+        These permissions can be assigned to custom roles created by the merchant, and to API keys.
 
         Raises:
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
@@ -10620,6 +10732,8 @@ class Client:
         Retrieve a list of all current plans available for the merchant.
         Plans represent different levels of service or pricing plans currently available.
         The `selectable` flag indicates if a plan can be subscribed to via self-service.
+
+        `skus` lists the SKUs the merchant would be billed with on each plan, including the merchant's custom SKUs for the plan's tier.
 
         Raises:
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
@@ -11242,6 +11356,8 @@ class Client:
 
         The response includes information about the plan's tier, which indicates the level of service provided.
         It also reports `pending_plan_id`, the plan a scheduled change will promote to, or `null` when no change is scheduled.
+
+        `skus` lists the SKUs the merchant is billed with, including the merchant's custom SKUs for the plan's tier.
 
         Raises:
             webfunction.BadRequestError: code "NO_PLAN_SELECTED" - The merchant is not currently subscribed to any plan. A plan must be subscribed to via the `select-plan` endpoint first.
@@ -12857,15 +12973,15 @@ class AsyncClient:
         Returns a paginated list of payments for the authenticated merchant with advanced filtering capabilities.
 
         This endpoint provides comprehensive search functionality using the SearchIndex infrastructure,
-        allowing you to filter payments by various criteria including status, payment method, currency,
-        amount ranges, terminal, and date ranges.
+        allowing you to filter payments by various criteria including status, payment method, payment method category,
+        installment issuer, currency, amount ranges, terminal, and date ranges.
 
         The response includes pagination controls with `previous` and `next` cursors that can be used
         to navigate through the payment history efficiently.
 
         ### Features:
         - **Full-text search**: Search across payment content
-        - **Advanced filtering**: Filter by status, payment method, currency, amount, contact, terminal, dates, and fraud finding
+        - **Advanced filtering**: Filter by status, payment method, payment method category, installment issuer, currency, amount, contact, terminal, dates, and fraud finding
         - **Contact filtering**: Filter by contact internal ID or external ID
         - **Date range support**: Support for specific dates, datetimes, date ranges, datetime ranges, and keywords
         - **Pagination**: Efficient cursor-based pagination
@@ -12909,12 +13025,12 @@ class AsyncClient:
         return AsyncTypedPage(result, lambda v: PayoutAttributes._from_dict(v))
 
     async def filter_terminals(self, args: Optional[FilterTerminalsArgs] = None) -> "AsyncTypedPage[TerminalAttributes]":
-        """## Filter Terminals
+        """## Filter terminals
 
-        Returns a paginated list of terminals for the authenticated merchant with search capabilities.
+        Returns a paginated list of terminals for the authenticated merchant with filtering capabilities.
 
-        This endpoint provides full-text search functionality using the SearchIndex infrastructure,
-        allowing you to search terminals by name, external ID, and branch name.
+        Filter by terminal name, branch name (substring match), creation date, and connection date. Free-text
+        `terms` matches terminal name, terminal ID, external ID, and branch name. Results are ordered by creation date descending.
 
         Raises:
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
@@ -13520,6 +13636,23 @@ class AsyncClient:
         result = await self._raw.call("list-installations", raw_args)
         return [InstallationAttributes._from_dict(_item) for _item in (result or [])]
 
+    async def list_installment_issuers(self) -> List[ListInstallmentIssuersResult]:
+        """## List installment issuers
+
+        Returns the card issuers the authenticated merchant can take installment payments with, sorted by display name.
+
+        Use an issuer's `issuer_id` with `filter-payments` to list the payments made with cards from that issuer.
+
+        Returns an empty array when the merchant does not offer installments.
+
+        Raises:
+            webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
+            webfunction.JsonParseError: if the response body isn't valid JSON
+        """
+        raw_args: Dict[str, Any] = {}
+        result = await self._raw.call("list-installment-issuers", raw_args)
+        return [ListInstallmentIssuersResult._from_dict(_item) for _item in (result or [])]
+
     async def list_invoices(self, args: Optional[ListInvoicesArgs] = None) -> "AsyncTypedPage[InvoiceAttributes]":
         """## List invoices
 
@@ -13760,7 +13893,7 @@ class AsyncClient:
         """## List all permissions
 
         Retrieves a list of all permissions available for roles within the merchant account.
-        These permissions can be assigned to custom roles created by the merchant.
+        These permissions can be assigned to custom roles created by the merchant, and to API keys.
 
         Raises:
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
@@ -13788,6 +13921,8 @@ class AsyncClient:
         Retrieve a list of all current plans available for the merchant.
         Plans represent different levels of service or pricing plans currently available.
         The `selectable` flag indicates if a plan can be subscribed to via self-service.
+
+        `skus` lists the SKUs the merchant would be billed with on each plan, including the merchant's custom SKUs for the plan's tier.
 
         Raises:
             webfunction.UnexpectedStatusCodeError: if the server responds with a non-200/400 status
@@ -14410,6 +14545,8 @@ class AsyncClient:
 
         The response includes information about the plan's tier, which indicates the level of service provided.
         It also reports `pending_plan_id`, the plan a scheduled change will promote to, or `null` when no change is scheduled.
+
+        `skus` lists the SKUs the merchant is billed with, including the merchant's custom SKUs for the plan's tier.
 
         Raises:
             webfunction.BadRequestError: code "NO_PLAN_SELECTED" - The merchant is not currently subscribed to any plan. A plan must be subscribed to via the `select-plan` endpoint first.

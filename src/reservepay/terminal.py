@@ -174,6 +174,30 @@ class ConnectDeviceByCodeArgs:
 
 
 @dataclass
+class ConnectDeviceByCodeResult:
+    """ConnectDeviceByCodeResult is the result of the connect-device-by-code endpoint.
+    """
+
+    merchant_id: str = field(metadata={"wire_name": "merchant_id"})
+    """The merchant ID this terminal belongs to.
+    """
+    terminal_id: str = field(metadata={"wire_name": "terminal_id"})
+    """Terminal ID (`trm_…`) the device is connected to.
+    """
+    key: str = field(metadata={"wire_name": "key"})
+    """API key token for this device, prefixed with `reservepay_`.
+    """
+
+    @classmethod
+    def _from_dict(cls, d: Dict[str, Any]) -> "ConnectDeviceByCodeResult":
+        return cls(
+            merchant_id=d["merchant_id"],
+            terminal_id=d["terminal_id"],
+            key=d["key"],
+        )
+
+
+@dataclass
 class RetrieveInstallationSettingsArgs:
     """RetrieveInstallationSettingsArgs holds the arguments for the retrieve-installation-settings endpoint.
     """
@@ -307,6 +331,12 @@ class RetrieveInstallationSettingsResult:
     hide_logo: bool = field(metadata={"wire_name": "hide_logo"})
     """Whether to hide the logo completely from the payment interface.
     """
+    shop_name_font_family: str = field(metadata={"wire_name": "shop_name_font_family"})
+    """Font family for the shop name shown when no logo is displayed.
+    """
+    shop_name_font_variant: Literal["Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black"] = field(metadata={"wire_name": "shop_name_font_variant"})
+    """Font weight variant for the shop name. One of: "Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black".
+    """
     heading_font_family: str = field(metadata={"wire_name": "heading_font_family"})
     """Font family for headings.
     """
@@ -377,6 +407,8 @@ class RetrieveInstallationSettingsResult:
             sidebar_background_type=d["sidebar_background_type"],
             tile_sidebar_image=d["tile_sidebar_image"],
             hide_logo=d["hide_logo"],
+            shop_name_font_family=d["shop_name_font_family"],
+            shop_name_font_variant=d["shop_name_font_variant"],
             heading_font_family=d["heading_font_family"],
             heading_font_variant=d["heading_font_variant"],
             body_font_family=d["body_font_family"],
@@ -509,12 +541,13 @@ class Client:
         result = self._raw.call("connect-device", raw_args)
         return cast(str, result)
 
-    def connect_device_by_code(self, args: ConnectDeviceByCodeArgs) -> str:
+    def connect_device_by_code(self, args: ConnectDeviceByCodeArgs) -> ConnectDeviceByCodeResult:
         """## Connect a device with a temporary challenge
 
         Connect a device to the terminal that owns the given 8-digit temporary challenge.
-        The code must be unexpired. On success the device is bound, a fresh API key token
-        (prefixed with `reservepay_`) is returned, and the temporary challenge is cleared.
+        The code must be unexpired. On success the device is bound, the temporary challenge
+        is cleared, and the response holds the merchant ID, the terminal ID and a fresh API
+        key token (prefixed with `reservepay_`).
 
         If the terminal is already bound to a different device, `ALREADY_CONNECTED` is returned.
         If it is bound to the same device, the previous key is revoked and a new one is issued.
@@ -533,7 +566,7 @@ class Client:
         """
         raw_args = _to_args_dict(args)
         result = self._raw.call("connect-device-by-code", raw_args)
-        return cast(str, result)
+        return ConnectDeviceByCodeResult._from_dict(result)
 
     def retrieve_installation_settings(self, args: RetrieveInstallationSettingsArgs) -> RetrieveInstallationSettingsResult:
         """## Retrieve the installation settings
@@ -674,12 +707,13 @@ class AsyncClient:
         result = await self._raw.call("connect-device", raw_args)
         return cast(str, result)
 
-    async def connect_device_by_code(self, args: ConnectDeviceByCodeArgs) -> str:
+    async def connect_device_by_code(self, args: ConnectDeviceByCodeArgs) -> ConnectDeviceByCodeResult:
         """## Connect a device with a temporary challenge
 
         Connect a device to the terminal that owns the given 8-digit temporary challenge.
-        The code must be unexpired. On success the device is bound, a fresh API key token
-        (prefixed with `reservepay_`) is returned, and the temporary challenge is cleared.
+        The code must be unexpired. On success the device is bound, the temporary challenge
+        is cleared, and the response holds the merchant ID, the terminal ID and a fresh API
+        key token (prefixed with `reservepay_`).
 
         If the terminal is already bound to a different device, `ALREADY_CONNECTED` is returned.
         If it is bound to the same device, the previous key is revoked and a new one is issued.
@@ -698,7 +732,7 @@ class AsyncClient:
         """
         raw_args = _to_args_dict(args)
         result = await self._raw.call("connect-device-by-code", raw_args)
-        return cast(str, result)
+        return ConnectDeviceByCodeResult._from_dict(result)
 
     async def retrieve_installation_settings(self, args: RetrieveInstallationSettingsArgs) -> RetrieveInstallationSettingsResult:
         """## Retrieve the installation settings

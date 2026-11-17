@@ -523,6 +523,12 @@ class RetrieveInstallationSettingsResult:
     hide_logo: bool = field(metadata={"wire_name": "hide_logo"})
     """Whether to hide the logo completely from the payment interface.
     """
+    shop_name_font_family: str = field(metadata={"wire_name": "shop_name_font_family"})
+    """Font family for the shop name shown when no logo is displayed.
+    """
+    shop_name_font_variant: Literal["Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black"] = field(metadata={"wire_name": "shop_name_font_variant"})
+    """Font weight variant for the shop name. One of: "Thin", "ExtraLight", "Light", "Regular", "Medium", "SemiBold", "Bold", "ExtraBold", "Black".
+    """
     heading_font_family: str = field(metadata={"wire_name": "heading_font_family"})
     """Font family for headings.
     """
@@ -584,6 +590,8 @@ class RetrieveInstallationSettingsResult:
             sidebar_background_type=d["sidebar_background_type"],
             tile_sidebar_image=d["tile_sidebar_image"],
             hide_logo=d["hide_logo"],
+            shop_name_font_family=d["shop_name_font_family"],
+            shop_name_font_variant=d["shop_name_font_variant"],
             heading_font_family=d["heading_font_family"],
             heading_font_variant=d["heading_font_variant"],
             body_font_family=d["body_font_family"],
@@ -681,6 +689,9 @@ class RetrievePaymentSessionResult:
     status: Literal["PENDING", "INITIATED", "SUCCESSFUL", "FAILED", "EXPIRED"] = field(metadata={"wire_name": "status"})
     """The current status of the payment. One of: "PENDING", "INITIATED", "SUCCESSFUL", "FAILED", "EXPIRED".
     """
+    card_first_digits: Optional[str] = field(default=None, metadata={"wire_name": "card_first_digits"})
+    """The first 6 digits of the card number. Null for non-card payment methods or card sessions without a token.
+    """
     card_last_digits: Optional[str] = field(default=None, metadata={"wire_name": "card_last_digits"})
     """The last 2 digits of the card number. Null for non-card payment methods or card sessions without a token.
     """
@@ -744,6 +755,7 @@ class RetrievePaymentSessionResult:
             payment_method=d["payment_method"],
             payment_method_display_name=d["payment_method_display_name"],
             status=d["status"],
+            card_first_digits=d.get("card_first_digits"),
             card_last_digits=d.get("card_last_digits"),
             card_network=d.get("card_network"),
             installment_term=d.get("installment_term"),
