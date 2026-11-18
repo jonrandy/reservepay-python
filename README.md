@@ -15,4 +15,3 @@ from reservepay.merchant import Client
 merchant_client = Client.create_new(bearer_auth="MY_API_KEY")
 available_api_versions = merchant_client.available_api_versions()
 ```
-```
